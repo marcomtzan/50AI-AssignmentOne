@@ -92,53 +92,48 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # Initialise a QueueFrontier for BFS, with the starting actor ID:
+    # Utilize a breadth first search to guarantee the shortest path is found and initialize explored set
     start = Node(source, None, None)
     frontier = QueueFrontier()
     frontier.add(start)
-
-    # Initialise an empty explored set to hold explored states (actors):
     explored = set()
 
-    # Loop until a solution is found, or Frontier is empty(no solution):
+    # Loop while either end or solution are found
     while True:
-
-        if len(explored) % 100 == 0:
-            print('Actors explored to find solution: ', len(explored))
-            print('Nodes left to expand in Frontier: ', len(frontier.frontier))
 
         # Check for empty Frontier and return with no path if empty
         if frontier.empty():
-            print('Frontier is Empty - No Connection Between Actors!')
-            print(len(explored), 'actors explored to with no solution found!')
+            print("There were a total of ", len(explored), " nodes searched with no solution found.")
             return None
 
-        # Otherwise expand the next node in the Queue, add it to the explored states and get set of movies and actors for the actor in the current node:
-        curr_node = frontier.remove()
-        explored.add(curr_node.state)
+        # Dequeue element onto the frontier
+        current_node = frontier.remove()
 
-        for action, state in neighbors_for_person(curr_node.state):
+        # Add dequeued element to explored set
+        explored.add(current_node.state)
 
-            # If state (actor) is the target actor then solution has been found, return path:
+        # Loop through pairs that are returned by function neighbors_for_person
+        for action, state in neighbors_for_person(current_node.state):
+
+            # Checks for solution
             if state == target:
-                print('Solution Found!')
-                print(len(explored), 'actors explored to find solution!')
-                # Create path from source to target
-                path = []
-                path.append((action, state))
+                print("Solution found after exploring ", len(explored), "actors.")
+                # Defines end node for shortest path
+                path = [(action, state)]
 
-                # Add action and state to path until back to start node
-                while curr_node.parent != None:
-                    path.append((curr_node.action, curr_node.state))
-                    curr_node = curr_node.parent
-
+                # Backtracks steps to define shortest path
+                while current_node.parent is not None:
+                    path.append((current_node.action, current_node.state))
+                    current_node = current_node.parent
                 path.reverse()
 
                 return path
 
-            # Otherwise add the new states to explore to the frontier:
+            # Checks for frontier having state and that it is not in explored
             if not frontier.contains_state(state) and state not in explored:
-                new_node = Node(state, curr_node, action)
+
+                # Adds new node to QueueFrontier
+                new_node = Node(state, current_node, action)
                 frontier.add(new_node)
 
 
